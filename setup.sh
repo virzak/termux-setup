@@ -1,7 +1,7 @@
 #!/data/data/com.termux/files/usr/bin/bash
 # Fresh-Termux setup for an Android phone: identity, ssh, PowerShell in proot Debian, virzak/dotfiles.
 # Run from Termux (after termux-setup-storage):  bash ~/storage/downloads/termux-setup/setup.sh
-# Every step is safe to re-run. Run a single step with:  bash setup.sh 03-pwsh.sh
+# Every step is safe to re-run. Run a single step with:  bash setup.sh 04-pwsh.sh
 set -e
 DIR="$(cd "$(dirname "$0")" && pwd)"
 export SETUP_DIR="$DIR"

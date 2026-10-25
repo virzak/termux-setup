@@ -2,7 +2,8 @@
 # PowerShell has no Android build: install linux-arm64 pwsh inside proot-distro Debian
 # and put a `pwsh` wrapper in Termux. Re-run to update PowerShell to the latest release.
 set -e
-[ -d "$PREFIX/var/lib/proot-distro/installed-rootfs/debian" ] || proot-distro install debian
+# Ask proot-distro rather than test a path: v5 moved installs from installed-rootfs/ to containers/.
+proot-distro login debian -- true >/dev/null 2>&1 || proot-distro install debian
 proot-distro login debian -- bash -euo pipefail -c '
 export DEBIAN_FRONTEND=noninteractive
 apt-get update

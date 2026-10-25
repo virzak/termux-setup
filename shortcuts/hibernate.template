@@ -5,7 +5,7 @@
 ssh -o BatchMode=yes -o ConnectTimeout=5 -o ServerAliveInterval=2 -o ServerAliveCountMax=2 \
   @HOST@ 'shutdown /h' 2>"$TMPDIR/hibernate-@HOST@.err"
 rc=$?
-if [ $rc -eq 0 ] || { [ $rc -eq 255 ] && ! grep -qiE 'could not resolve|connection refused|connection timed out|no route|permission denied' "$TMPDIR/hibernate-@HOST@.err"; }; then
+if [ $rc -eq 0 ] || { [ $rc -eq 255 ] && ! grep -qiE 'could not resolve|connection refused|connection timed out|no route|permission denied|host key verification failed|kex_exchange_identification|connection closed by [0-9a-f.:]+ port' "$TMPDIR/hibernate-@HOST@.err"; }; then
   echo "@HOST@ is hibernating"; sleep 1
 else
   cat "$TMPDIR/hibernate-@HOST@.err"; read -rp "Failed (exit $rc). Press Enter to close."
