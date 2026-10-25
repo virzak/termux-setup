@@ -27,7 +27,7 @@ Every step is safe to re-run.
 | `02-identity.sh` | `$USER` and a `<user>@<device>` bash prompt from `USER_NAME` and `DEVICE_NAME` (default: phone model) |
 | `03-ssh.sh` | PC key in `authorized_keys`, managed `~/.ssh/config` block, starts sshd on 8022 |
 | `04-pwsh.sh` | Debian + latest PowerShell, `pwsh` wrapper, DNS for Debian |
-| `05-dotfiles.sh` | Clones dotfiles, links configs, oh-my-posh, Terminal-Icons, Meslo Nerd Font, pwsh as default shell |
+| `05-dotfiles.sh` | Clones dotfiles and runs its `setup.sh` inside Debian (links, oh-my-posh, Terminal-Icons, Nerd Font), then makes pwsh the default shell |
 | `06-shortcuts.sh` | Copies `shortcuts/` to `~/.shortcuts` for Termux:Widget and makes a `hibernate-<host>` shortcut for each of `HIBERNATE_HOSTS` |
 
 If pwsh breaks new sessions: long-press the Termux icon, choose **Failsafe**, then `rm ~/.termux/shell`.
