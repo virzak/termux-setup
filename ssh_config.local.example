@@ -1,0 +1,11 @@
+# Copy to ssh_config.local (gitignored). 03-ssh.sh puts it into ~/.ssh/config ahead of a
+# catch-all "Host * / User <USER_NAME>" block.
+
+Host jump
+    HostName jump.example.com
+    Port 2222
+    User me
+
+Host inside
+    HostName 10.0.0.2
+    ProxyJump jump
