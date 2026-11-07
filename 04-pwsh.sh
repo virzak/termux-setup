@@ -7,7 +7,7 @@ proot-distro login debian -- true >/dev/null 2>&1 || proot-distro install debian
 proot-distro login debian -- bash -euo pipefail -c '
 export DEBIAN_FRONTEND=noninteractive
 apt-get update
-apt-get install -y curl ca-certificates less locales tzdata git unzip
+apt-get install -y curl ca-certificates less locales tzdata git unzip iputils-ping
 ICU=$(apt-cache search --names-only "^libicu[0-9]+$" | cut -d" " -f1 | head -1)
 apt-get install -y "$ICU"
 # Latest version from the releases/latest redirect (no API rate limit).
@@ -41,14 +41,33 @@ DIR="${SETUP_DIR:-$(cd "$(dirname "$0")" && pwd)}"
 } > "$PREFIX/etc/proot-resolv.conf"
 
 # Termux home is bound to /root inside the distro; start pwsh in the matching folder.
+# Absolute paths: sshd started from the Failsafe session hands its children a bare PATH.
 cat > "$PREFIX/bin/pwsh" <<'EOF'
 #!/data/data/com.termux/files/usr/bin/bash
+# Android has no /usr, so this exists only inside the distro: don't nest proot-distro.
+[ -x /usr/bin/pwsh ] && exec /usr/bin/pwsh "$@"
+P=/data/data/com.termux/files/usr
 case "$PWD" in "$HOME"*) wd="/root${PWD#$HOME}" ;; *) wd=/root ;; esac
-exec proot-distro login debian --shared-tmp --termux-home \
-  --bind "$PREFIX/etc/proot-resolv.conf:/etc/resolv.conf" \
+exec "$P/bin/proot-distro" login debian --shared-tmp --termux-home \
+  --bind "$P/etc/proot-resolv.conf:/etc/resolv.conf" \
   --env TERM="${TERM:-xterm-256color}" --env COLORTERM=truecolor \
   --work-dir "$wd" -- /usr/bin/pwsh "$@"
 EOF
 chmod +x "$PREFIX/bin/pwsh"
+
+# Termux's login runs ~/.termux/shell for app sessions and for sshd. Interactive sessions get
+# pwsh; commands (ssh host cmd, scp, sftp, rsync) get bash, skipping the slow proot start and
+# its pwsh-syntax quirks.
+cat > "$PREFIX/bin/termux-login-shell" <<'EOF'
+#!/data/data/com.termux/files/usr/bin/bash
+P=/data/data/com.termux/files/usr
+export PATH="$P/bin:${PATH:-/system/bin}"
+for a in "$@"; do [ "$a" = -c ] && exec "$P/bin/bash" "$@"; done
+exec "$P/bin/pwsh" "$@"
+EOF
+chmod +x "$PREFIX/bin/termux-login-shell"
+# If pwsh ever breaks, long-press the Termux icon -> Failsafe, then: rm ~/.termux/shell
+mkdir -p ~/.termux
+ln -sfv "$PREFIX/bin/termux-login-shell" ~/.termux/shell
 pwsh -NoProfile -c '"pwsh $($PSVersionTable.PSVersion) OK"; "github.com -> $([Net.Dns]::GetHostAddresses("github.com"))"' || true
 echo PWSH_DONE

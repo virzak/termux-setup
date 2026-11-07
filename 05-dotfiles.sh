@@ -7,11 +7,6 @@ if [ -d dotfiles/.git ]; then git -C dotfiles pull --ff-only; else git clone htt
 
 # Inside the distro Termux's home is /root.
 proot-distro login debian --termux-home -- bash /root/dotfiles/setup.sh
-
-# Termux runs ~/.termux/shell for every new session. If pwsh ever breaks, long-press the
-# Termux icon -> Failsafe for plain bash, then: rm ~/.termux/shell
-mkdir -p ~/.termux
-ln -sfv "$PREFIX/bin/pwsh" ~/.termux/shell
 termux-reload-settings || true
 pwsh -NoLogo -c '"profile: $PROFILE"; Get-Command oh-my-posh | % Source; Get-Module -ListAvailable Terminal-Icons | % Version'
 echo DOTFILES_DONE
