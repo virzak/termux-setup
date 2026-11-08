@@ -65,7 +65,7 @@ chmod +x "$PREFIX/bin/pwsh"
 cat > "$PREFIX/bin/termux-login-shell" <<'EOF'
 #!/data/data/com.termux/files/usr/bin/bash
 P=/data/data/com.termux/files/usr
-export PATH="$P/bin:${PATH:-/system/bin}"
+export PATH="$P/bin:${PATH:-/system/bin}" PREFIX="${PREFIX:-$P}" TMPDIR="${TMPDIR:-$P/tmp}"
 # Android kills Termux in the background; bring sshd back with the next session. Done here,
 # before pwsh enters proot, so sshd never ends up running inside the distro.
 pgrep -x sshd >/dev/null || sshd
