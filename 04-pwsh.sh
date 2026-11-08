@@ -10,11 +10,15 @@ apt-get update
 apt-get install -y curl ca-certificates less locales tzdata git unzip iputils-ping
 ICU=$(apt-cache search --names-only "^libicu[0-9]+$" | cut -d" " -f1 | head -1)
 apt-get install -y "$ICU"
-# Latest version from the releases/latest redirect (no API rate limit).
-URL=$(curl -fsSLI -o /dev/null -w "%{url_effective}" https://github.com/PowerShell/PowerShell/releases/latest)
-VER=${URL##*/v}
+# Latest version from the releases/latest redirect (no API rate limit), else from the API.
+URL=$(curl -fsSLI -o /dev/null -w "%{url_effective}" https://github.com/PowerShell/PowerShell/releases/latest || true)
+case "$URL" in */tag/v*) VER=${URL##*/v} ;; *) VER= ;; esac
+[ -n "$VER" ] || VER=$(curl -fsSL https://api.github.com/repos/PowerShell/PowerShell/releases/latest | sed -n "s/.*\"tag_name\": *\"v\([^\"]*\)\".*/\1/p" || true)
 CUR=$(/opt/microsoft/powershell/7/pwsh -NoProfile -c "\$PSVersionTable.PSVersion.ToString()" 2>/dev/null || true)
-if [ "$CUR" = "$VER" ]; then
+if [ -z "$VER" ]; then
+  [ -n "$CUR" ] || { echo "Cannot reach GitHub to find the PowerShell version" >&2; exit 1; }
+  echo "GitHub unreachable; keeping PowerShell $CUR"
+elif [ "$CUR" = "$VER" ]; then
   echo "PowerShell $VER already installed"
 else
   echo "PowerShell ${CUR:-none} -> $VER"
@@ -62,6 +66,9 @@ cat > "$PREFIX/bin/termux-login-shell" <<'EOF'
 #!/data/data/com.termux/files/usr/bin/bash
 P=/data/data/com.termux/files/usr
 export PATH="$P/bin:${PATH:-/system/bin}"
+# Android kills Termux in the background; bring sshd back with the next session. Done here,
+# before pwsh enters proot, so sshd never ends up running inside the distro.
+pgrep -x sshd >/dev/null || sshd
 for a in "$@"; do [ "$a" = -c ] && exec "$P/bin/bash" "$@"; done
 exec "$P/bin/pwsh" "$@"
 EOF

@@ -26,7 +26,7 @@ Every step is safe to re-run.
 | `01-base.sh` | Full upgrade, then openssh, git, curl, unzip, proot-distro |
 | `02-identity.sh` | `$USER` and a `<user>@<device>` bash prompt from `USER_NAME` and `DEVICE_NAME` (default: phone model) |
 | `03-ssh.sh` | PC key in `authorized_keys`, managed `~/.ssh/config` block, starts sshd on 8022 |
-| `04-pwsh.sh` | Debian + latest PowerShell, `pwsh` wrapper, DNS for Debian; makes pwsh the default shell (SSH commands, scp and sftp use bash) |
+| `04-pwsh.sh` | Debian + latest PowerShell, `pwsh` wrapper, DNS for Debian; makes pwsh the default shell (SSH commands, scp and sftp use bash); every new session restarts sshd if Android killed it |
 | `05-dotfiles.sh` | Clones dotfiles and runs its `setup.sh` inside Debian (links, oh-my-posh, Terminal-Icons, Nerd Font) |
 | `06-shortcuts.sh` | Copies `shortcuts/` to `~/.shortcuts` for Termux:Widget and makes a `hibernate-<host>` shortcut for each of `HIBERNATE_HOSTS` |
 
